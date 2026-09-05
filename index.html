@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLASSFLOW — Real-time Classroom Communication & Presence System</title>
+  <meta name="description" content="Dynamic Classroom Timetable, Teacher Alert & Student Presence Platform for modern universities.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ========================================================
+       PERSISTENT HACKATHON DEMO FLOATING BAR
+       ======================================================== -->
+  <aside class="demo-bar" id="demoBar" aria-label="Hackathon Demo Controller">
+    <div class="demo-bar-left">
+      <div class="demo-pill">
+        <span class="live-dot pulse"></span>
+        <span class="demo-pill-title">⚡ HACKATHON DEMO MODE</span>
+      </div>
+      <span class="demo-sync-status" id="demoSyncStatus">🟢 Synced (Cross-Tab Active)</span>
+    </div>
+
+    <div class="demo-bar-center">
+      <div class="role-switcher" role="group" aria-label="Switch Perspective">
+        <button type="button" class="role-btn" id="btnSwitchTeacher" onclick="switchRole('teacher')">
+          <span class="role-icon">👨‍🏫</span>
+          <span class="role-text">Teacher View</span>
+        </button>
+        <button type="button" class="role-btn" id="btnSwitchStudent" onclick="switchRole('student')">
+          <span class="role-icon">🎓</span>
+          <span class="role-text">Student View</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="demo-bar-right">
+      <button type="button" class="demo-action-btn" id="btnDemoScript" onclick="toggleDemoGuide()" title="View Hackathon Jury Demo Script">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        <span>Jury Script</span>
+      </button>
+      <button type="button" class="demo-action-btn" id="btnResetDemo" onclick="resetDemoState()" title="Reset to Pristine Demo Scenario">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        <span>Reset State</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========================================================
+       DEMO SCRIPT MODAL (GUIDE FOR JURY DEMONSTRATION)
+       ======================================================== -->
+  <div class="modal-backdrop hidden" id="demoGuideModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="badge badge-primary">HACKATHON WALKTHROUGH</div>
+          <h3>Jury Presentation Scenario (15-Step Flow)</h3>
+        </div>
+        <button type="button" class="modal-close" onclick="toggleDemoGuide()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Follow this sequence during your pitch to showcase full real-time synchronization between Teacher and Student perspectives:</p>
+        <ol class="demo-steps-list">
+          <li><strong>Start in Teacher View</strong> — Select <em>Engineering Mathematics (10:00 AM)</em>.</li>
+          <li>Click <span class="badge badge-success">🚶 ON MY WAY</span> — Broadcast is instantly dispatched.</li>
+          <li>Click <span class="badge badge-outline">🎓 Student View</span> in the top bar.</li>
+          <li>Notice the <strong>Audio Chime</strong> and the focal hero card displaying <span class="badge badge-success">🟢 Teacher On The Way</span>.</li>
+          <li>Click the primary button: <span class="badge badge-success">✓ I'M SEATED IN CLASS</span>.</li>
+          <li>Notice the button transforms into <span class="badge badge-success">✓ SEATED</span> with an instant feedback toast.</li>
+          <li>Click <span class="badge badge-outline">👨‍🏫 Teacher View</span>.</li>
+          <li>Notice the Live Presence Gauge immediately updated from <strong>27 → 28 seated students</strong>.</li>
+          <li>In Teacher View, click <span class="badge badge-warning">⏱ DELAY → +10 min</span>.</li>
+          <li>Notice the animated countdown starts (e.g. <code>09:59</code>).</li>
+          <li>Switch to <span class="badge badge-outline">🎓 Student View</span> — see the live countdown banner synchronizing second-by-second.</li>
+          <li>Switch to <span class="badge badge-outline">👨‍🏫 Teacher View</span> and click <span class="badge badge-info">🚪 ROOM SHIFT</span> (change AB-204 → AB-305).</li>
+          <li>Switch to <span class="badge badge-outline">🎓 Student View</span> — see the pulsating <span class="badge badge-info">ROOM CHANGED TO AB-305</span> banner.</li>
+          <li>Switch back to Teacher and click <span class="badge badge-danger">❌ CANCEL CLASS</span>.</li>
+          <li>Confirm in the modal to see the immediate <span class="badge badge-danger">🔴 CLASS CANCELLED</span> broadcast!</li>
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="toggleDemoGuide()">Close Guide</button>
+        <button type="button" class="btn btn-primary" onclick="resetDemoState(); toggleDemoGuide(); switchRole('teacher');">Run Demo from Step 1</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       VIEW 1: LANDING / DEMO ENTRY SCREEN
+       ======================================================== -->
+  <section class="view-screen active" id="viewLanding">
+    <div class="landing-container">
+      <header class="landing-nav">
+        <div class="brand">
+          <div class="brand-logo-wrap">
+            <span class="brand-glyph">⟡</span>
+          </div>
+          <span class="brand-name">CLASS<span class="brand-highlight">FLOW</span></span>
+        </div>
+        <div class="demo-active-pill">
+          <span class="live-dot pulse"></span>
+          <span>Demo Environment Active</span>
+        </div>
+      </header>
+
+      <main class="landing-hero">
+        <div class="hero-badge-wrap">
+          <span class="hero-badge">University Classroom Intelligence Platform</span>
+        </div>
+        <h1 class="hero-title">Real-time classroom communication,<br><span class="gradient-text">without the guesswork.</span></h1>
+        <p class="hero-subtitle">Replaces rigid static timetables with dynamic schedule broadcasts, live teacher arrival countdowns, room-shift alerts, and instant student presence verification.</p>
+
+        <div class="role-cards-grid">
+          <!-- Teacher Entry Card -->
+          <div class="role-entry-card teacher-card" onclick="switchRole('teacher')">
+            <div class="role-card-header">
+              <div class="role-avatar-circle teacher-glow">
+                <span>👨‍🏫</span>
+              </div>
+              <span class="role-tag teacher-tag">Faculty Portal</span>
+            </div>
+            <h3>Continue as Teacher</h3>
+            <p>Broadcast live statuses, report delays with countdowns, shift classrooms, and monitor real-time seated attendance.</p>
+            <ul class="role-feature-list">
+              <li>✓ Live Broadcast Control Panel</li>
+              <li>✓ 1-Tap Delay Countdown Timers</li>
+              <li>✓ Interactive Room Shift Dispatcher</li>
+              <li>✓ Real-Time Student Presence Gauge</li>
+            </ul>
+            <div class="role-card-footer">
+              <button type="button" class="btn btn-primary w-full">Launch Teacher Dashboard →</button>
+            </div>
+          </div>
+
+          <!-- Student Entry Card -->
+          <div class="role-entry-card student-card" onclick="switchRole('student')">
+            <div class="role-card-header">
+              <div class="role-avatar-circle student-glow">
+                <span>🎓</span>
+              </div>
+              <span class="role-tag student-tag">Student Portal</span>
+            </div>
+            <h3>Continue as Student</h3>
+            <p>Track your dynamic timetable, receive instant arrival notifications with audio chimes, and check in with one tap.</p>
+            <ul class="role-feature-list">
+              <li>✓ Dynamic Next-Class Focal Hub</li>
+              <li>✓ Live Arrival & Delay Countdown</li>
+              <li>✓ One-Tap "I'm Seated" Verification</li>
+              <li>✓ Room-Change & Cancellation Stream</li>
+            </ul>
+            <div class="role-card-footer">
+              <button type="button" class="btn btn-outline w-full">Launch Student Dashboard →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="landing-quick-bar">
+          <button type="button" class="quick-demo-link" onclick="startQuickDemo()">
+            <span class="bolt">⚡</span> Run Hackathon Jury Demo Flow (1-Click Start)
+          </button>
+          <span class="divider-dot">•</span>
+          <span class="sync-note">Supports dual-monitor & multi-tab real-time live synchronization</span>
+        </div>
+      </main>
+
+      <footer class="landing-footer">
+        <span>CLASSFLOW v2.4 • Hackathon Prototype Edition • MIT License</span>
+      </footer>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       VIEW 2: TEACHER DASHBOARD
+       ======================================================== -->
+  <section class="view-screen hidden" id="viewTeacher">
+    <div class="dashboard-shell">
+      <!-- Teacher Sidebar -->
+      <aside class="sidebar" aria-label="Teacher Navigation">
+        <div class="sidebar-top">
+          <div class="brand brand-sm" onclick="showLanding()">
+            <div class="brand-logo-wrap sm">
+              <span class="brand-glyph">⟡</span>
+            </div>
+            <span class="brand-name">CLASS<span class="brand-highlight">FLOW</span></span>
+          </div>
+          <div class="user-profile-badge">
+            <div class="user-avatar-wrap">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Prof. Alan Turing" class="user-avatar-img">
+              <span class="online-indicator"></span>
+            </div>
+            <div class="user-meta">
+              <span class="user-name">Prof. Alan Turing</span>
+              <span class="role-badge role-badge-teacher">TEACHER</span>
+            </div>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="#dashboard" class="nav-item active">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="#schedule" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>My Schedule</span>
+          </a>
+          <a href="#live-classes" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>Live Classes</span>
+            <span class="nav-badge-pill">1 Active</span>
+          </a>
+          <a href="#classrooms" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>Classrooms</span>
+          </a>
+          <a href="#notifications" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span>Notifications</span>
+            <span class="nav-badge-dot"></span>
+          </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="system-status-box">
+            <div class="status-row">
+              <span class="status-dot-sm online"></span>
+              <span class="status-label">ClassFlow Engine</span>
+            </div>
+            <span class="status-sub">Broadcasting to CSE-A</span>
+          </div>
+          <button type="button" class="btn-sidebar-exit" onclick="showLanding()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Exit to Portal</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Teacher Main Workspace -->
+      <main class="main-content">
+        <!-- Top Workspace Header -->
+        <header class="workspace-header">
+          <div class="header-left">
+            <div class="breadcrumb">
+              <span class="crumb-root">CLASSFLOW</span>
+              <span class="crumb-separator">/</span>
+              <span class="crumb-current">Teacher Dashboard</span>
+            </div>
+            <h2 class="workspace-title">Classroom Operations Center</h2>
+          </div>
+
+          <div class="header-center">
+            <div class="live-clock-pill">
+              <span class="clock-icon">🕒</span>
+              <span class="clock-date" id="teacherCurrentDate">Friday, Sept 5</span>
+              <span class="clock-divider">•</span>
+              <span class="clock-time" id="teacherCurrentTime">10:04:15 AM</span>
+              <span class="badge-live"><span class="pulse-dot"></span> LIVE</span>
+            </div>
+          </div>
+
+          <div class="header-right">
+            <button type="button" class="sound-toggle-btn" id="btnSoundToggleTeacher" onclick="toggleSound()" title="Toggle Alert Sound Chime">
+              <span id="soundIconTeacher">🔊</span>
+              <span class="sound-label" id="soundLabelTeacher">Sound On</span>
+            </button>
+            <div class="notif-btn-wrap">
+              <button type="button" class="icon-btn" title="Recent Alerts">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span class="notif-counter" id="teacherAlertCount">2</span>
+              </button>
+            </div>
+            <div class="header-user-chip">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&auto=format&fit=crop&q=80" alt="Avatar" class="avatar-sm">
+              <span class="user-chip-name">Prof. Turing</span>
+              <span class="badge-chip">TEACHER</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Summary Stat Grid -->
+        <section class="summary-grid" aria-label="Quick Metrics">
+          <div class="stat-card">
+            <div class="stat-icon-wrap bg-blue-soft">
+              <span>📅</span>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Today's Classes</span>
+              <span class="stat-value">4</span>
+            </div>
+            <span class="stat-sub">Fully Scheduled</span>
+          </div>
+
+          <div class="stat-card stat-card-highlight">
+            <div class="stat-icon-wrap bg-green-soft">
+              <span class="pulse-icon">⚡</span>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Active Class</span>
+              <span class="stat-value text-green" id="teacherActiveClassesVal">1</span>
+            </div>
+            <span class="stat-sub">Room <strong id="teacherStatRoom">AB-204</strong></span>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap bg-purple-soft">
+              <span>👥</span>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Students Checked In</span>
+              <span class="stat-value" id="teacherSeatedStatVal">27 / 42</span>
+            </div>
+            <span class="stat-sub" id="teacherPresencePct">64% attendance</span>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap bg-amber-soft">
+              <span>📢</span>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Broadcast Alerts</span>
+              <span class="stat-value" id="teacherBroadcastCount">2</span>
+            </div>
+            <span class="stat-sub">Dispatched today</span>
+          </div>
+        </section>
+
+        <!-- 2-Column Split: Schedule & Live Control Panel -->
+        <div class="workspace-split">
+          <!-- Left Column: Today's Dynamic Schedule Cards -->
+          <section class="schedule-column" aria-label="Dynamic Schedule">
+            <div class="section-header">
+              <div>
+                <h3 class="section-title">Today's Dynamic Schedule</h3>
+                <p class="section-subtitle">Click a card to switch active broadcast focus.</p>
+              </div>
+              <span class="badge badge-neutral">Fall 2026</span>
+            </div>
+
+            <div class="schedule-cards-list" id="teacherScheduleCards">
+              <!-- Cards rendered dynamically by JS -->
+            </div>
+          </section>
+
+          <!-- Right Column: Live Class Control Panel & Student Presence -->
+          <section class="control-column" aria-label="Live Class Control">
+            <!-- Main Live Control Panel -->
+            <div class="control-panel-card" id="teacherControlPanel">
+              <div class="panel-header">
+                <div class="panel-header-left">
+                  <div class="badge badge-live-pill" id="teacherStatusBadge">
+                    <span class="live-dot pulse"></span>
+                    <span id="teacherStatusBadgeText">🟢 CLASS SCHEDULED</span>
+                  </div>
+                  <h3 class="panel-subject" id="teacherControlSubject">Engineering Mathematics</h3>
+                  <div class="panel-meta">
+                    <span class="meta-item" id="teacherControlClass">CSE • Semester 3 • Section A</span>
+                    <span class="meta-divider">•</span>
+                    <span class="meta-item">Room <strong class="room-highlight" id="teacherControlRoom">AB-204</strong></span>
+                    <span class="meta-divider">•</span>
+                    <span class="meta-item" id="teacherControlTime">10:00 AM – 11:15 AM</span>
+                  </div>
+                </div>
+
+                <div class="panel-header-right">
+                  <div class="active-countdown-box hidden" id="teacherCountdownBox">
+                    <span class="countdown-label">ESTIMATED ARRIVAL</span>
+                    <span class="countdown-digits" id="teacherCountdownDigits">09:42</span>
+                    <span class="countdown-sub" id="teacherCountdownSub">Delayed by 10m</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4 Primary Action Buttons Grid -->
+              <div class="action-buttons-grid">
+                <!-- Action 1: On My Way -->
+                <button type="button" class="action-btn btn-on-way" id="btnOnMyWay" onclick="handleTeacherOnMyWay()">
+                  <div class="action-icon-circle">🚶</div>
+                  <div class="action-info">
+                    <span class="action-title">ON MY WAY</span>
+                    <span class="action-desc">Broadcast "Teacher is coming"</span>
+                  </div>
+                  <span class="action-arrow">→</span>
+                </button>
+
+                <!-- Action 2: Delay -->
+                <div class="delay-action-dropdown-wrap">
+                  <button type="button" class="action-btn btn-delay" id="btnDelayTrigger" onclick="toggleDelaySelector()">
+                    <div class="action-icon-circle">⏱</div>
+                    <div class="action-info">
+                      <span class="action-title">DELAY</span>
+                      <span class="action-desc" id="btnDelaySubtext">Report 5m, 10m, or 15m delay</span>
+                    </div>
+                    <span class="action-arrow">▼</span>
+                  </button>
+
+                  <div class="delay-popover hidden" id="delayPopover">
+                    <span class="popover-title">Select Delay Duration:</span>
+                    <div class="delay-options-group">
+                      <button type="button" class="delay-opt-btn" onclick="handleTeacherDelay(5)">+5 min</button>
+                      <button type="button" class="delay-opt-btn delay-opt-recommended" onclick="handleTeacherDelay(10)">+10 min</button>
+                      <button type="button" class="delay-opt-btn" onclick="handleTeacherDelay(15)">+15 min</button>
+                    </div>
+                    <button type="button" class="btn-clear-delay" onclick="handleClearDelay()">Cancel / Reset Delay</button>
+                  </div>
+                </div>
+
+                <!-- Action 3: Room Shift -->
+                <button type="button" class="action-btn btn-room-shift" id="btnRoomShift" onclick="openRoomShiftModal()">
+                  <div class="action-icon-circle">🚪</div>
+                  <div class="action-info">
+                    <span class="action-title">ROOM SHIFT</span>
+                    <span class="action-desc" id="btnRoomShiftDesc">Move room from AB-204</span>
+                  </div>
+                  <span class="action-arrow">⇄</span>
+                </button>
+
+                <!-- Action 4: Cancel Class -->
+                <button type="button" class="action-btn btn-cancel-class" id="btnCancelClass" onclick="openCancelModal()">
+                  <div class="action-icon-circle">❌</div>
+                  <div class="action-info">
+                    <span class="action-title">CANCEL CLASS</span>
+                    <span class="action-desc">Issue cancellation notice</span>
+                  </div>
+                  <span class="action-arrow">⚠️</span>
+                </button>
+              </div>
+
+              <!-- Quick Broadcast Message Box -->
+              <div class="custom-broadcast-wrap">
+                <div class="broadcast-input-row">
+                  <input type="text" class="broadcast-input" id="teacherCustomMsg" placeholder="Send an urgent announcement to this class (e.g. 'Bring laptops for lab today')...">
+                  <button type="button" class="btn btn-primary btn-send-broadcast" onclick="handleSendCustomAnnouncement()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    <span>Broadcast</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Student Presence Card -->
+            <div class="presence-card" id="teacherPresenceCard">
+              <div class="presence-header">
+                <div>
+                  <h4 class="presence-title">Live Classroom Presence</h4>
+                  <p class="presence-sub">Real-time student check-in verification for Room <span id="presenceRoomLabel">AB-204</span></p>
+                </div>
+                <div class="presence-live-chip">
+                  <span class="live-dot pulse"></span>
+                  <span>Live Sensor</span>
+                </div>
+              </div>
+
+              <div class="presence-body">
+                <!-- Circular SVG Progress Indicator -->
+                <div class="circular-progress-wrap">
+                  <svg class="progress-ring" width="140" height="140">
+                    <circle class="progress-ring-bg" stroke="rgba(226, 232, 240, 0.6)" stroke-width="12" fill="transparent" r="56" cx="70" cy="70" />
+                    <circle class="progress-ring-fill" id="presenceProgressRing" stroke="#10b981" stroke-width="12" stroke-linecap="round" fill="transparent" r="56" cx="70" cy="70" stroke-dasharray="351.86" stroke-dashoffset="126" />
+                  </svg>
+                  <div class="progress-center-text">
+                    <span class="progress-num" id="presenceSeatedCount">27</span>
+                    <span class="progress-denom">/ <span id="presenceTotalCount">42</span></span>
+                    <span class="progress-caption">SEATED</span>
+                  </div>
+                </div>
+
+                <div class="presence-breakdown">
+                  <div class="presence-stat-row">
+                    <div class="stat-indicator green-dot"></div>
+                    <div class="stat-text-group">
+                      <span class="presence-stat-strong"><span id="presenceSeatedText">27</span> Seated</span>
+                      <span class="presence-stat-muted">Checked in via mobile</span>
+                    </div>
+                  </div>
+
+                  <div class="presence-stat-row">
+                    <div class="stat-indicator gray-dot"></div>
+                    <div class="stat-text-group">
+                      <span class="presence-stat-strong"><span id="presenceUncheckedText">15</span> Not Checked In</span>
+                      <span class="presence-stat-muted">Awaiting in corridor / absent</span>
+                    </div>
+                  </div>
+
+                  <!-- Student Avatar Stack -->
+                  <div class="avatar-stack-wrap">
+                    <span class="stack-label">Recently seated:</span>
+                    <div class="avatar-stack" id="teacherAvatarStack">
+                      <div class="avatar-bubble" title="Alex Chen">AC</div>
+                      <div class="avatar-bubble" title="Sarah Jenkins">SJ</div>
+                      <div class="avatar-bubble" title="David Kumar">DK</div>
+                      <div class="avatar-bubble" title="Priya Patel">PP</div>
+                      <div class="avatar-bubble bubble-more" id="avatarMoreBubble">+24</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Broadcasts Feed in Teacher View -->
+            <div class="broadcast-log-card">
+              <div class="log-header">
+                <span class="log-title">Recent Broadcast History</span>
+                <button type="button" class="btn-clear-log" onclick="clearAlertHistory()">Clear</button>
+              </div>
+              <div class="log-list" id="teacherAlertLog">
+                <!-- Dynamic alerts -->
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       VIEW 3: STUDENT DASHBOARD
+       ======================================================== -->
+  <section class="view-screen hidden" id="viewStudent">
+    <div class="dashboard-shell student-theme">
+      <!-- Student Sidebar -->
+      <aside class="sidebar" aria-label="Student Navigation">
+        <div class="sidebar-top">
+          <div class="brand brand-sm" onclick="showLanding()">
+            <div class="brand-logo-wrap sm student-glyph">
+              <span class="brand-glyph">⟡</span>
+            </div>
+            <span class="brand-name">CLASS<span class="brand-highlight">FLOW</span></span>
+          </div>
+          <div class="user-profile-badge">
+            <div class="user-avatar-wrap student-ring">
+              <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80" alt="Alex Chen" class="user-avatar-img">
+              <span class="online-indicator student-dot"></span>
+            </div>
+            <div class="user-meta">
+              <span class="user-name">Alex Chen</span>
+              <span class="role-badge role-badge-student">CSE • SEM 3</span>
+            </div>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="#student-dashboard" class="nav-item active">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="#today-classes" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>Today's Classes</span>
+            <span class="nav-badge-pill">4 Classes</span>
+          </a>
+          <a href="#live-updates" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>Live Updates</span>
+            <span class="nav-badge-dot"></span>
+          </a>
+          <a href="#attendance" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span>My Attendance</span>
+          </a>
+          <a href="#settings" class="nav-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Settings</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="system-status-box student-box">
+            <div class="status-row">
+              <span class="status-dot-sm online"></span>
+              <span class="status-label">Class Connected</span>
+            </div>
+            <span class="status-sub">Section A (Room AB-204)</span>
+          </div>
+          <button type="button" class="btn-sidebar-exit" onclick="showLanding()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Exit to Portal</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Student Main Workspace -->
+      <main class="main-content">
+        <!-- Student Header -->
+        <header class="workspace-header">
+          <div class="header-left">
+            <div class="breadcrumb">
+              <span class="crumb-root">CLASSFLOW</span>
+              <span class="crumb-separator">/</span>
+              <span class="crumb-current">Today's Classes</span>
+            </div>
+            <h2 class="workspace-title">Student Live Hub</h2>
+          </div>
+
+          <div class="header-center">
+            <div class="live-clock-pill student-clock">
+              <span class="clock-icon">🕒</span>
+              <span class="clock-date" id="studentCurrentDate">Friday, Sept 5</span>
+              <span class="clock-divider">•</span>
+              <span class="clock-time" id="studentCurrentTime">10:04:15 AM</span>
+              <span class="badge-live"><span class="pulse-dot"></span> LIVE</span>
+            </div>
+          </div>
+
+          <div class="header-right">
+            <button type="button" class="sound-toggle-btn" id="btnSoundToggleStudent" onclick="toggleSound()" title="Toggle Alert Sound Chime">
+              <span id="soundIconStudent">🔊</span>
+              <span class="sound-label" id="soundLabelStudent">Sound On</span>
+            </button>
+            <div class="notif-btn-wrap">
+              <button type="button" class="icon-btn" title="Recent Alerts">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span class="notif-counter" id="studentAlertCount">1</span>
+              </button>
+            </div>
+            <div class="header-user-chip">
+              <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=60&auto=format&fit=crop&q=80" alt="Avatar" class="avatar-sm">
+              <span class="user-chip-name">Alex Chen</span>
+              <span class="badge-chip student-chip">STUDENT</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Student Summary Cards -->
+        <section class="summary-grid" aria-label="Student Metrics">
+          <div class="stat-card stat-card-highlight-student">
+            <div class="stat-icon-wrap bg-blue-soft">
+              <span>⏰</span>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Next Class</span>
+              <span class="stat-value text-blue">10:00 AM</span>
+            </div>
+            <span class="stat-sub">Room <strong id="studentSummaryRoom">AB-204</strong></span>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap bg-purple-soft">
+              <span>📚</span>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Today's Classes</span>
+              <span class="stat-value">4</span>
+            </div>
+            <span class="stat-sub">CSE • Semester 3</span>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap bg-green-soft">
+              <span>✓</span>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Checked In Today</span>
+              <span class="stat-value" id="studentCheckedInRatio">2 / 4</span>
+            </div>
+            <span class="stat-sub">Verified attendance</span>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap bg-amber-soft">
+              <span>🔔</span>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Live Alerts</span>
+              <span class="stat-value" id="studentLiveAlertsCount">1</span>
+            </div>
+            <span class="stat-sub">Active broadcast</span>
+          </div>
+        </section>
+
+        <!-- Main Focal Hero: NEXT CLASS Card -->
+        <section class="next-class-hero-section" aria-label="Next Class Focal Point">
+          <div class="next-class-card" id="studentNextClassCard">
+            <!-- Top pill banner -->
+            <div class="next-card-top-bar">
+              <div class="next-label-pill">
+                <span class="live-dot pulse"></span>
+                <span>FOCAL NEXT CLASS</span>
+              </div>
+              <div class="status-pill-badge" id="studentHeroStatusBadge">
+                <span class="status-pill-text" id="studentHeroStatusText">🟢 ON TIME</span>
+              </div>
+            </div>
+
+            <!-- Subject & Core details -->
+            <div class="next-card-main">
+              <div class="next-card-details">
+                <span class="next-card-time" id="studentHeroTime">10:00 AM – 11:15 AM</span>
+                <h1 class="next-card-subject" id="studentHeroSubject">Engineering Mathematics</h1>
+                <p class="next-card-teacher">Instructor: <strong id="studentHeroTeacher">Prof. Alan Turing</strong></p>
+                <div class="next-card-tags">
+                  <span class="tag-pill tag-class" id="studentHeroClassTag">CSE • Semester 3 • Section A</span>
+                  <span class="tag-pill tag-room" id="studentHeroRoomTag">📍 Room <strong>AB-204</strong></span>
+                </div>
+              </div>
+
+              <!-- Check-In Action Section -->
+              <div class="next-card-action-zone">
+                <div class="check-in-widget">
+                  <button type="button" class="btn-checkin" id="btnStudentCheckin" onclick="handleStudentCheckin()">
+                    <span class="checkin-icon" id="studentCheckinIcon">✓</span>
+                    <span class="checkin-label" id="studentCheckinLabel">I'M SEATED IN CLASS</span>
+                  </button>
+                  <p class="checkin-helper-text" id="studentCheckinHelper">Click when you are present at your desk.</p>
+                </div>
+
+                <!-- Live presence ticker -->
+                <div class="presence-inline-pill" id="studentPresenceInlinePill">
+                  <span class="live-dot pulse"></span>
+                  <span class="presence-inline-text"><strong id="studentSeatedCountText">27</strong> / 42 students seated</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Delay Countdown Banner (Visible when Teacher reports delay) -->
+            <div class="student-countdown-banner hidden" id="studentCountdownBanner">
+              <div class="banner-left">
+                <span class="banner-icon">⏱</span>
+                <div>
+                  <span class="banner-heading" id="studentCountdownTitle">Teacher Delayed by 10 Minutes</span>
+                  <span class="banner-sub">Class will commence immediately upon arrival</span>
+                </div>
+              </div>
+              <div class="banner-timer-box">
+                <span class="timer-digits" id="studentCountdownDigits">09:42</span>
+                <span class="timer-sub">ESTIMATED ARRIVAL</span>
+              </div>
+            </div>
+
+            <!-- Dynamic Room Changed Banner (Visible when Teacher shifts room) -->
+            <div class="student-room-shift-banner hidden" id="studentRoomShiftBanner">
+              <div class="shift-icon-wrap">🚪</div>
+              <div class="shift-text-wrap">
+                <span class="shift-title">Classroom Relocated</span>
+                <span class="shift-desc" id="studentRoomShiftDesc">This class has moved from <strong>AB-204</strong> → <strong class="new-room-text">AB-305</strong>. Please proceed to the new room.</span>
+              </div>
+              <div class="new-room-badge" id="studentNewRoomBadge">ROOM AB-305</div>
+            </div>
+
+            <!-- Dynamic Cancellation Banner -->
+            <div class="student-cancelled-banner hidden" id="studentCancelledBanner">
+              <div class="cancel-icon-wrap">❌</div>
+              <div class="cancel-text-wrap">
+                <span class="cancel-title">Class Cancelled for Today</span>
+                <span class="cancel-desc">Prof. Alan Turing has issued an official cancellation notice. Please check your LMS for self-study assignments.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2-Column Split: Today's Schedule & Live Alerts Feed -->
+        <div class="student-lower-grid">
+          <!-- Left: Today's Full Classes Timeline -->
+          <section class="student-schedule-sec" aria-label="Today's Classes">
+            <div class="section-header">
+              <div>
+                <h3 class="section-title">Today's Timetable</h3>
+                <p class="section-subtitle">Semester 3 • Fall 2026 Academic Schedule</p>
+              </div>
+              <span class="badge badge-neutral">4 Periods</span>
+            </div>
+
+            <div class="student-schedule-list" id="studentScheduleList">
+              <!-- Rendered dynamically via JS -->
+            </div>
+          </section>
+
+          <!-- Right: Live Alert Feed Section -->
+          <section class="student-alerts-sec" aria-label="Live Updates">
+            <div class="section-header">
+              <div>
+                <h3 class="section-title">Live Updates & Broadcasts</h3>
+                <p class="section-subtitle">Instant notifications from your course instructors</p>
+              </div>
+              <span class="badge badge-live-pill"><span class="live-dot pulse"></span> REAL-TIME</span>
+            </div>
+
+            <div class="alerts-feed-container" id="studentAlertsFeed">
+              <!-- Live alerts rendered dynamically -->
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       MODALS: ROOM SHIFT MODAL
+       ======================================================== -->
+  <div class="modal-backdrop hidden" id="roomShiftModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="badge badge-info">DISPATCH ROOM REASSIGNMENT</div>
+          <h3>Relocate Classroom</h3>
+        </div>
+        <button type="button" class="modal-close" onclick="closeRoomShiftModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Shift the active class location. All enrolled students currently checked in or waiting will receive an immediate visual alert.</p>
+
+        <div class="room-shift-flow">
+          <div class="room-node">
+            <span class="node-label">CURRENT ROOM</span>
+            <span class="node-val" id="shiftCurrentRoomText">AB-204</span>
+          </div>
+          <div class="shift-arrow-circle">➔</div>
+          <div class="room-node target-node">
+            <span class="node-label">NEW ROOM</span>
+            <select class="room-select-input" id="shiftNewRoomSelect">
+              <option value="AB-305" selected>AB-305 (Comp Lab 2)</option>
+              <option value="CSE-201">CSE-201 (Main Lecture Hall)</option>
+              <option value="AB-102">AB-102 (Seminar Room)</option>
+              <option value="AUD-01">Auditorium East</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group mt-4">
+          <label class="form-label" for="shiftCustomNote">Reason / Note for Students (Optional):</label>
+          <input type="text" class="form-input" id="shiftCustomNote" placeholder="e.g. Projector malfunction in AB-204; moving to Lab.">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeRoomShiftModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="confirmRoomShift()">Confirm & Broadcast Shift</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODALS: CANCEL CLASS CONFIRMATION MODAL
+       ======================================================== -->
+  <div class="modal-backdrop hidden" id="cancelClassModal">
+    <div class="modal-card modal-danger">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="badge badge-danger">CONFIRMATION REQUIRED</div>
+          <h3>Cancel this class?</h3>
+        </div>
+        <button type="button" class="modal-close" onclick="closeCancelModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="danger-callout">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-content">
+            <p><strong>Students currently waiting will receive an immediate notification.</strong></p>
+            <p class="callout-sub">This will notify 42 enrolled students in Section A that <em>Engineering Mathematics</em> is officially cancelled for today.</p>
+          </div>
+        </div>
+
+        <div class="form-group mt-4">
+          <label class="form-label" for="cancelReasonInput">Cancellation Notice / Instructions:</label>
+          <input type="text" class="form-input" id="cancelReasonInput" value="Instructor is on emergency faculty duty. Please review Module 3 notes." placeholder="Enter message for students...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeCancelModal()">Keep Class</button>
+        <button type="button" class="btn btn-danger" onclick="confirmClassCancellation()">Cancel Class</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       TOAST NOTIFICATION CONTAINER
+       ======================================================== -->
+  <div class="toast-shelf" id="toastShelf" aria-live="polite"></div>
+
+  <!-- App Logic & Synchronization Engine -->
+  <script src="app.js"></script>
+</body>
+</html>
